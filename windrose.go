@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"math"
 	"os"
 	"text/template"
@@ -22,11 +21,11 @@ type Arrow struct {
 
 // GenWindrose takes an input angle and fills a byte buffer with SVG data
 func GenWindrose(angleDeg float64, svgWindroseBuf *bytes.Buffer) error {
-	svgBaseTmplData, err := ioutil.ReadFile("windrose_base.svg.tmpl")
+	svgBaseTmplData, err := os.ReadFile("windrose_base.svg.tmpl")
 	if err != nil {
 		return err
 	}
-	svgArrowTmplData, err := ioutil.ReadFile("windrose_arrow.svg.tmpl")
+	svgArrowTmplData, err := os.ReadFile("windrose_arrow.svg.tmpl")
 	if err != nil {
 		return err
 	}
@@ -62,6 +61,9 @@ func GenWindrose(angleDeg float64, svgWindroseBuf *bytes.Buffer) error {
 		return err
 	}
 	err = svgBaseTmpl.Execute(svgWindroseBuf, svgArrowBuf.String())
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

@@ -14,10 +14,8 @@ func windrose(w http.ResponseWriter, req *http.Request) {
 	}
 	angleDeg, err := strconv.ParseFloat(angle, 64)
 	if err != nil {
-		angle = "0"
-		err = nil
 		// TODO: handle errors better
-		// panic(err)
+		panic(err)
 	}
 	svgWindroseBuf := &bytes.Buffer{}
 	err = GenWindrose(angleDeg, svgWindroseBuf)
@@ -27,11 +25,14 @@ func windrose(w http.ResponseWriter, req *http.Request) {
 	}
 	w.Header().Set("Content-Type", "image/svg+xml")
 	// w.Header().Set("Windrose-Angle-Deg", string(angleDeg))
-	fmt.Fprintf(w, svgWindroseBuf.String())
+	fmt.Fprint(w, svgWindroseBuf.String())
 }
 
 func main() {
 	http.HandleFunc("/windrose", windrose)
 
-	http.ListenAndServe(":8090", nil)
+	err := http.ListenAndServe(":8090", nil)
+	if err != nil {
+		panic(err)
+	}
 }
