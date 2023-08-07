@@ -8,7 +8,23 @@ import (
 )
 
 func windrose(w http.ResponseWriter, req *http.Request) {
-	angle := req.URL.Query()["angle"][0]
+	// angle := req.URL.Query()["angle"][0]
+	params := req.URL.Query()
+	angle := params.Get("angle")
+	direction := params.Get("direction")
+	if direction != "" {
+		directions := [8]string{
+			"N", "NE",
+			"E", "SE",
+			"S", "SW",
+			"W", "NW"}
+		multiplier := 360 / len(directions)
+		for i := 0; i < len(directions); i++ {
+			if direction == directions[i] {
+				angle = strconv.Itoa(int(i) * multiplier)
+			}
+		}
+	}
 	if angle == "" {
 		angle = "0" // set a default
 	}
