@@ -64,26 +64,3 @@ func GenWindrose(angleDeg float64, svgWindroseBuf *bytes.Buffer) error {
 	err = svgBaseTmpl.Execute(svgWindroseBuf, svgArrowBuf.String())
 	return nil
 }
-
-/*
-func main() {
-	var (
-		angleDeg float64
-		err      error
-	)
-	if len(os.Args) > 1 {
-		angleDeg, err = strconv.ParseFloat(os.Args[1], 64)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	svgWindroseBuf := &bytes.Buffer{}
-	err = GenWindrose(angleDeg, svgWindroseBuf)
-	// err = svgBaseTmpl.Execute(os.Stdout, svgArrowBuf.String())
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%s\n", svgWindroseBuf.String())
-}
-*/
