@@ -4,27 +4,43 @@ This runs an HTTP server that responds to requests with an SVG Windrose.
 
 ## Build & Run
 
-Build the program:
-```
-go build .
-```
-
-Run the program:
-```
-./windrose-go
+Build & run the program in one command:
+```sh
+go run cmd/serve.go
 ```
 
-Alternatively, you can do it all at once:
+Use `ko` to build a container image and push to a registry:
+
+```sh
+GITHUB_TOKEN=topsecret
+KO_DOCKER_REPO=ghcr.io/user/repo
+ko build cmd/serve.go
 ```
-go run .
+
+Run the `ko` built image, without pushing to a registry:
+
+```sh
+podman run -p8080:8080 -p40000:40000 $(ko build --local cmd/serve)
 ```
 
 ## Usage
 
-The server listens on port 8090. It will respond to the path `/windrose` and accepts a GET parameter, `angle`. For example:
+The server listens on port 8080.
+
+It has a single endpoint: `/windrose`, which accepts one of two GET parameters: `angle`, or `direction`.
+
+`angle` would be the direction/angle in degrees (0-360)
+
+`direction` is a cardinal direction: N, S, E, W
+
+For example:
 
 ```
-curl http://localhost:8090/windrose?angle=270
+curl http://localhost:8080/windrose?angle=270
+```
+
+```
+curl http://localhost:8080/windrose?direction=W
 ```
 
 ## Debugging
