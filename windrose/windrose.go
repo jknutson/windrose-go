@@ -22,9 +22,9 @@ type Arrow struct {
 
 // GenWindrose takes an input angle and fills a byte buffer with SVG data
 func GenWindrose(angleDeg float64, svgWindroseBuf *bytes.Buffer) error {
-	tmplPath := os.Getenv("KO_DATA_PATH")
+	tmplPath := os.Getenv("KO_DATA_PATH") // TODO: move this os interaction to cmd/
 	if len(tmplPath) == 0 {
-		tmplPath = "kodata"
+		tmplPath = "cmd/kodata"
 	}
 	svgBaseTmplData, err := os.ReadFile(path.Join(tmplPath, "windrose_base.svg.tmpl"))
 	if err != nil {
