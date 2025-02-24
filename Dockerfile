@@ -1,22 +1,29 @@
-FROM golang:1.24-bookworm
+## Build
+FROM golang:1.24-bookworm AS build
 
-ENV GO111MODULE=on
-ENV GOFLAGS=-mod=vendor
-ENV APP_USER=app
-ENV APP_HOME=/go/src/windrose-go
-ENV GROUP_ID=1001
-ENV USER_ID=1001
+WORKDIR /app
 
-RUN groupadd --gid $GROUP_ID app && \
-  useradd -m -l --uid $USER_ID --gid $GROUP_ID $APP_USER && \
-  mkdir -p $APP_HOME && \
-  chown -R $APP_USER:$APP_USER $APP_HOME
+# COPY go.mod ./
+# COPY go.sum ./
+# RUN go mod download
 
-USER $APP_USER
-WORKDIR $APP_HOME
-COPY . .
+COPY . ./
 
-ENV GOFLAGS='-buildvcs=false -trimpath'
-RUN go build -o ./windrose-go .
+ENV CGO_ENABLED=0
+ENV GOFLAGS='-buildvcs=false -trimpath -mod=vendor'
+RUN go build -o /serve ./cmd/serve.go
+
+## Deploy
+FROM gcr.io/distroless/base-debian12
+
+WORKDIR /
+
+COPY --from=build /serve /serve
+COPY --from=build /app/kodata/windrose_base.svg.tmpl /kodata/windrose_base.svg.tmpl
+COPY --from=build /app/kodata/windrose_arrow.svg.tmpl /kodata/windrose_arrow.svg.tmpl
+
 EXPOSE 8080
-CMD ["./windrose-go"]
+
+USER nonroot:nonroot
+# IMAGE_ID=$(docker build -q -t foo . 2>/dev/null | awk '/Successfully built/{print $NF}')
+ENTRYPOINT ["/serve"]
