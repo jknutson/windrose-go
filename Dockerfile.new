@@ -19,6 +19,8 @@ FROM gcr.io/distroless/base-debian12
 WORKDIR /
 
 COPY --from=build /serve /serve
+COPY --from=build /app/kodata/windrose_base.svg.tmpl /kodata/windrose_base.svg.tmpl
+COPY --from=build /app/kodata/windrose_arrow.svg.tmpl /kodata/windrose_arrow.svg.tmpl
 
 EXPOSE 8080
 
