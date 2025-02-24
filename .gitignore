@@ -1,2 +1,5 @@
-windrose-go.exe
+*.exe
 windrose-go
+serve
+oryxBuildBinary
+kocache

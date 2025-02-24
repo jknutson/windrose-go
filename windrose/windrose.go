@@ -1,11 +1,11 @@
-package main
+package windrose
 
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"math"
 	"os"
+	"path"
 	"text/template"
 )
 
@@ -22,11 +22,15 @@ type Arrow struct {
 
 // GenWindrose takes an input angle and fills a byte buffer with SVG data
 func GenWindrose(angleDeg float64, svgWindroseBuf *bytes.Buffer) error {
-	svgBaseTmplData, err := ioutil.ReadFile("windrose_base.svg.tmpl")
+	tmplPath := os.Getenv("KO_DATA_PATH") // TODO: move this os interaction to cmd/
+	if len(tmplPath) == 0 {
+		tmplPath = "cmd/kodata"
+	}
+	svgBaseTmplData, err := os.ReadFile(path.Join(tmplPath, "windrose_base.svg.tmpl"))
 	if err != nil {
 		return err
 	}
-	svgArrowTmplData, err := ioutil.ReadFile("windrose_arrow.svg.tmpl")
+	svgArrowTmplData, err := os.ReadFile(path.Join(tmplPath, "windrose_arrow.svg.tmpl"))
 	if err != nil {
 		return err
 	}
@@ -34,7 +38,7 @@ func GenWindrose(angleDeg float64, svgWindroseBuf *bytes.Buffer) error {
 	if err != nil {
 		return err
 	}
-	svgBaseTmpl, err := template.New("arrow").Parse(string(svgBaseTmplData))
+	svgBaseTmpl, err := template.New("base").Parse(string(svgBaseTmplData))
 	if err != nil {
 		return err
 	}
@@ -57,33 +61,13 @@ func GenWindrose(angleDeg float64, svgWindroseBuf *bytes.Buffer) error {
 	arrow.Width = 3.5
 
 	svgArrowBuf := &bytes.Buffer{}
-	err = svgArrowTmpl.Execute(svgArrowBuf, arrow)
-	if err != nil {
+	// err = svgArrowTmpl.Execute(svgArrowBuf, arrow)
+	if err = svgArrowTmpl.Execute(svgArrowBuf, arrow); err != nil {
 		return err
 	}
-	err = svgBaseTmpl.Execute(svgWindroseBuf, svgArrowBuf.String())
+	if err = svgBaseTmpl.Execute(svgWindroseBuf, svgArrowBuf.String()); err != nil {
+		return err
+	}
+	// err = svgBaseTmpl.Execute(svgWindroseBuf, svgArrowBuf.String())
 	return nil
 }
-
-/*
-func main() {
-	var (
-		angleDeg float64
-		err      error
-	)
-	if len(os.Args) > 1 {
-		angleDeg, err = strconv.ParseFloat(os.Args[1], 64)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	svgWindroseBuf := &bytes.Buffer{}
-	err = GenWindrose(angleDeg, svgWindroseBuf)
-	// err = svgBaseTmpl.Execute(os.Stdout, svgArrowBuf.String())
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%s\n", svgWindroseBuf.String())
-}
-*/

@@ -4,12 +4,16 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
+
+	"github.com/jknutson/windrose-go/windrose"
 )
 
-func windrose(w http.ResponseWriter, req *http.Request) {
+func serveWindrose(w http.ResponseWriter, req *http.Request) {
 	// angle := req.URL.Query()["angle"][0]
 	params := req.URL.Query()
+	fmt.Fprintf(os.Stdout, "query params:%s\n", params)
 	angle := params.Get("angle")
 	direction := params.Get("direction")
 	if direction != "" {
@@ -36,18 +40,18 @@ func windrose(w http.ResponseWriter, req *http.Request) {
 		// panic(err)
 	}
 	svgWindroseBuf := &bytes.Buffer{}
-	err = GenWindrose(angleDeg, svgWindroseBuf)
+	err = windrose.GenWindrose(angleDeg, svgWindroseBuf)
 	if err != nil {
 		// TODO: what here?
 		panic(err)
 	}
 	w.Header().Set("Content-Type", "image/svg+xml")
 	// w.Header().Set("Windrose-Angle-Deg", string(angleDeg))
-	fmt.Fprintf(w, svgWindroseBuf.String())
+	fmt.Fprintf(w, "%s", svgWindroseBuf.String())
 }
 
 func main() {
-	http.HandleFunc("/windrose", windrose)
+	http.HandleFunc("/windrose", serveWindrose)
 
 	http.ListenAndServe(":8080", nil)
 }
